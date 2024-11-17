@@ -1,0 +1,252 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
+@function get-font-size($font-style) {
+    @return "--sys-text-#{$font-style}-size";
+}
+
+@function get-font-weight($font-style) {
+    @return "--sys-text-#{$font-style}-weight";
+}
+
+@function get-line-height($font-style) {
+    @return "--sys-text-#{$font-style}-line-height";
+}
+@function get-font-color($font-style) {
+    @return "--sys-text-#{$font-style}-color";
+}
+@mixin autolayout--base(){
+    display: grid;
+    gap:15px;
+    grid-template-rows: repeat(3, min-content);
+    grid-template-areas:
+    "title"
+    "subtitle"
+    "description";
+}
+
+@mixin autolayout--vertical(){
+    display: grid;
+    gap: 15px;
+    grid-template-rows: repeat(4, min-content);
+    grid-template-areas:
+    "image"
+    "title"
+    "subtitle"
+    "description";
+}
+
+@mixin autolayout--gorizontal(){
+    display: grid;
+    grid-template-rows: repeat(3, min-content);
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    grid-template-areas:
+    "image title"
+    "image subtitle"
+    "image description";
+}
+@mixin style_of_text($style-text){
+    font-family: 'Roboto', sans-serif;
+    @if ($style-text == "title" or $style-text == "description"){
+        font-size: clamp(var(#{get-font-size($style-text)}), 2vw + .5rem, var(#{get-font-size($style-text)}) + 7px);
+    }
+    font-size: clamp(var(#{get-font-size($style-text)}), 2vw + .25rem, var(#{get-font-size($style-text)}) + 3px);
+    line-height: var(#{get-line-height($style-text)});
+    font-weight: var(#{get-font-weight($style-text)}); 
+    color: var(#{get-font-color($style-text)}); 
+    padding-inline: 15px;
+}
+$maps:(
+    text: (
+        title:(
+            30px,
+            400,
+            40px,
+
+        ),
+        subtitle:(
+            18px,
+            500,
+            normal,
+        ),
+        description:(
+            16px,
+            400,
+            normal,
+        ),
+    ),
+    politer: (
+        md-sys-color-surface-container-highest: (
+            rgb(225 226 232),
+            rgb(50 53 58)
+        ),
+        md-sys-color-on-surface: (
+            rgb(25 28 32),
+            rgb(225 226 232)
+        ),
+        md-sys-color-on-surface-variant: (
+            rgb(67 71 78),
+            rgb(195 198 207)
+        ),
+        md-sys-color-on-body:(
+            white,
+            rgba(169, 169, 169, 0.019),
+        ),
+    )
+);
+
+$breakpoint-table: 1380px;
+$breakpoint-phone: 900px;
+:root{
+    color-scheme: light dark;
+    @each $name, $properties in map-get($maps, text) {
+        --sys-text-#{$name}-size: #{nth($properties, 1)};
+        --sys-text-#{$name}-weight: #{nth($properties, 2)};
+        --sys-text-#{$name}-line-height: #{nth($properties, 3)};
+    }
+    @each $variable, $colors in map-get($maps, politer) {
+        --#{$variable}--light: #{nth($colors, 1)};
+        --#{$variable}--dark: #{nth($colors, 2)};
+        --#{$variable}: light-dark(
+            var(--#{$variable}--light),
+            var(--#{$variable}--dark)
+        );
+    }
+}
+html, body{
+    background-color: var(--md-sys-color-on-body);
+    margin: 0;
+    h3, h4, p{
+        margin: 0;
+    }
+}
+.container{
+    margin: auto;
+    padding-block: 30px;
+    grid-auto-flow: row dense;
+    display: grid;
+    gap: 15px;
+    padding: 50px;
+    @media (width >= $breakpoint-table){
+        max-width: 1424px;
+        min-width: none;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        grid-template-areas:
+        "card1 card2 card2"
+        "card1 card3 card4"
+        "card5 card6 card6";
+    }
+    @media (width < $breakpoint-table) and (width > $breakpoint-phone){
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        grid-template-areas:
+        "card1 card2"
+        "card1 card2"
+        "card3 card4"
+        "card6 card6"
+        "card5 .";
+    }
+    @media (width < $breakpoint-phone){
+        min-width: 400px;
+        grid-template-columns: none;
+        grid-template-rows: repeat(1fr, 9);
+        grid-template-areas:
+        "card1"
+        "card1"
+        "card2"
+        "card2"
+        "card6"
+        "card6"
+        "card3"
+        "card4"
+        "card5";
+    }
+    .card {
+        &:nth-child(1){
+            grid-area: card1;
+        }
+        &:nth-child(2){
+            grid-area: card2;
+        }
+        &:nth-child(3){
+            grid-area: card3;
+        }
+        &:nth-child(4){
+            grid-area: card4;
+        }
+        &:nth-child(5){
+            grid-area: card5;
+        }
+        &:nth-child(6){
+            grid-area: card6;
+        }
+        @include autolayout--base();
+        --_state-layer-display: none;
+        z-index: 0;
+        background: var(--md-sys-color-surface-container-highest);
+        color: var(--md-sys-color-on-surface);
+        border-radius: 10px;
+        box-sizing: content-box;
+        position: relative;
+        &:hover {
+            --_state-layer-opacity: 0.08;
+            --_state-layer-display: block;
+        }
+        &::before {
+            display: var(--_state-layer-display);
+            content: "";
+            border-radius: 10px;
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            transition: 0.5s opacity;
+            background-color: currentColor;
+            opacity: var(--_state-layer-opacity, 0);
+        }
+        &__image{
+            grid-column: image;
+            grid-row: image;
+            object-fit: cover;
+            height: 100%;
+            width: 100%;
+            border-radius: 10px;
+        }
+        &__title{
+            grid-column: title;
+            grid-row: title;
+            @include style_of_text("title");
+            padding-top: 20px;
+        }
+        &__subtitle{
+            grid-column: subtitle;
+            grid-row: subtitle;
+            @include style_of_text("subtitle");
+        }
+        &__description{
+            grid-column: description;
+            grid-row: description;
+            @include style_of_text("description");
+            padding-bottom: 10px;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+        &--vertical{
+            @include autolayout--vertical();
+        }
+        &--gorizontal-max{
+            @media (width > $breakpoint-table){
+                @include autolayout--gorizontal();
+            }
+            @media (width <= $breakpoint-table){
+                @include autolayout--vertical();
+            }
+        }
+        &--gorizontal-min{
+            @media (width > $breakpoint-phone){
+                @include autolayout--gorizontal();
+            }
+            @media (width <= $breakpoint-phone){
+                @include autolayout--vertical();
+            }
+        }
+    }
+}
